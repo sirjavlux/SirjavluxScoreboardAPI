@@ -4,16 +4,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
-
-	private String consolePrefix = ChatColor.GRAY + "[SirjavluxScoreboardAPI]";
 	
+	private String consolePrefix = ChatColor.GRAY + "[SirjavluxScoreboardAPI]";
+	  
 	@Override
 	public void onEnable() {
-		this.getServer().getConsoleSender().sendMessage(consolePrefix + ChatColor.GREEN + " Successfully enabled!");
+	    getServer().getConsoleSender().sendMessage(String.valueOf(this.consolePrefix) + ChatColor.GREEN + " Successfully enabled!");
 	}
-	
+
 	@Override
-	public void onDisable() {
-		this.getServer().getConsoleSender().sendMessage(consolePrefix + ChatColor.RED + " Disabled!");
-	}
+	public void onDisable() { getServer().getConsoleSender().sendMessage(String.valueOf(this.consolePrefix) + ChatColor.RED + " Disabled!"); }
 }

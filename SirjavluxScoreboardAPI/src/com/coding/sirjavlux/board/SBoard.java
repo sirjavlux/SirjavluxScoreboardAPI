@@ -32,6 +32,7 @@ public class SBoard {
 			obj = board.registerNewObjective(title, "dummy");
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 		}
+		for (int i = 0; i < 15; i++) board.registerNewTeam(i + "");
 		
 		//add to manager
 		SBoardManager.addBoard(this);
@@ -44,46 +45,40 @@ public class SBoard {
 		} else if (!SBoardManager.getActiveBoard(p.getUniqueId()).equals(this)) {
 			this.setActive();
 		}
-		//get newLinesTexts
-		List<String> texts = new ArrayList<>();
-		for (SLine l : lines) {
-			texts.add(l.getLineText());
-		}
-		//remove unused lines
-		int count = 1;
-		for (Team team : board.getTeams()) {
-			if (count > lines.size()) {
-				board.resetScores(team.getEntries().toArray()[0].toString());
-				team.unregister();
-			}
-			count++;
-		}
-		
-		//set lines
-		Objective obj = board.getObjective(title);
-		count = 1;
-		for (SLine line : lines) {
-			SLine oldLine = this.lines.size() > count - 1 ? this.lines.get(count - 1) : null;
-			String prefix = line.getPrefix();
-			String definer = line.getDefiner();
-			String suffix = line.getSuffix();
-			Team team = board.getTeam(definer);
-			if (team == null) {
-				if (oldLine != null) {
-					if (board.getTeam(oldLine.getDefiner()) != null) {
-						System.out.println("remove line");
-						board.resetScores(oldLine.getDefiner());
-						board.getTeam(oldLine.getDefiner()).unregister();	
+		//add lines to board
+		for (int i = 0; i < 15; i++) {
+			SLine line = lines.size() > i ? lines.get(i) : null;
+			SLine oldLine = this.lines.size() > i ? this.lines.get(i) : null;
+			Team team = board.getTeam(i + "");
+			Objective obj = board.getObjective(title);
+			if (line != null) {
+				String prefix = line.getPrefix();
+				String definer = line.getDefiner();
+				String suffix = line.getSuffix();
+				if (oldLine != null && !team.getEntries().isEmpty()) {
+					if (oldLine.getLineText().equals(line.getLineText())) {
+						continue;
+					} else if (oldLine.getDefiner().equals(line.getDefiner())) {
+						team.setPrefix(prefix);
+						team.setSuffix(suffix);
+						continue;
+					} else {
+						String oldDefiner = team.getEntries().toArray()[0].toString();
+						board.resetScores(oldDefiner);
+						team.removeEntry(oldDefiner);
 					}
-				}
-				team = board.registerNewTeam(definer);
-				team.addEntry(definer);
+				} 
+				if (team.getEntries().isEmpty()) team.addEntry(definer);
+				team.setPrefix(prefix);
+				team.setSuffix(suffix);
+				obj.getScore(definer).setScore(i + 1);
+			} else if (!team.getEntries().isEmpty()) {
+				String oldDefiner = team.getEntries().toArray()[0].toString();
+				board.resetScores(oldDefiner);
+				team.removeEntry(oldDefiner);
 			}
-			team.setPrefix(prefix);
-			team.setSuffix(suffix);
-			obj.getScore(definer).setScore(count);
-			count++;
-		}		
+		}	
+		
 		this.lines = lines;
 	}
 	
